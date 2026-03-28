@@ -28,9 +28,9 @@ class FabricService {
         return { contract, gateway };
     }
 
-    async recordBuild(buildId, artifactHash, logIpfsHash) {
+    async recordBuild(buildId, artifactHash, logIpfsHash,buildBy) {
         const { contract, gateway } = await this.getContract();
-        await contract.submitTransaction('recordBuild', buildId, artifactHash, logIpfsHash);
+        await contract.submitTransaction('recordBuild', buildId, artifactHash, logIpfsHash, buildBy);
         await gateway.disconnect();
     }
 

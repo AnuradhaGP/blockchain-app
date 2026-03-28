@@ -39,7 +39,7 @@ class BuildContract extends Contract {
      * @param {String} artifactHash - SHA-256 Hash of the artifact (Ensures Integrity)
      * @param {String} logIpfsHash - IPFS Hash (CID) of the build logs (Ensures Auditability)
      */
-    async recordBuild(ctx, buildId, artifactHash, logIpfsHash) {
+    async recordBuild(ctx, buildId, artifactHash, logIpfsHash, buildBy) {
         console.info('============= START : Record Build ===========');
 
         // Check if the build ID already exists to prevent overwriting (Immutability check)
@@ -58,6 +58,7 @@ class BuildContract extends Contract {
             artifactHash,
             logIpfsHash,
             timestamp: timestamp, // Record when it was stored
+            buildBy: buildBy,
             verified: false // Initially not verified, will be verified later by verifyArtifact
         };
 
