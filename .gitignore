@@ -1,2 +1,4 @@
 /application/node_modules
 /application/wallet
+/chaincode/node_modules
+/application/.env
