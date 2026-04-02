@@ -16,7 +16,7 @@ class BuildContract extends Contract {
             {
                 buildId: 'BUILD-INIT-001',
                 artifactHash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', // Empty SHA-256 hash (placeholder)
-                logIpfsHash: 'QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG', // Dummy IPFS hash
+                logHash: 'QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG', // Dummy IPFS hash
                 status: 'Initial',
                 timestamp: '2024-01-01T00:00:00.000Z'
             }
@@ -32,14 +32,14 @@ class BuildContract extends Contract {
     }
 
     /**
-     * Record a new build. This matches requirement 4.1 in instructions.md
+     * Record a new build.
      * This function stores the immutable proof of a CI/CD build.
      * @param {Context} ctx 
      * @param {String} buildId - Unique ID of the build (e.g. Jenkins Build #)
      * @param {String} artifactHash - SHA-256 Hash of the artifact (Ensures Integrity)
-     * @param {String} logIpfsHash - IPFS Hash (CID) of the build logs (Ensures Auditability)
+     * @param {String} logHash - IPFS Hash (CID) of the build logs (Ensures Auditability)
      */
-    async recordBuild(ctx, buildId, artifactHash, logIpfsHash, buildBy) {
+    async recordBuild(ctx, buildId, artifactHash, logHash, logCid, artifactCid, buildBy) {
         console.info('============= START : Record Build ===========');
 
         // Check if the build ID already exists to prevent overwriting (Immutability check)
@@ -56,10 +56,11 @@ class BuildContract extends Contract {
             docType: 'build',
             buildId,
             artifactHash,
-            logIpfsHash,
+            logHash,
+            artifactCid,
+            logCid,
             timestamp: timestamp, // Record when it was stored
             buildBy: buildBy,
-            verified: false // Initially not verified, will be verified later by verifyArtifact
         };
 
         // Write the data to the blockchain ledger
@@ -69,7 +70,7 @@ class BuildContract extends Contract {
     }
 
     /**
-     * Verify Artifact Integrity. Matches requirement 4.2 in instructions.md
+     * Verify Artifact Integrity
      * Logic: Status = { Deploy Proceed if H_Artifact == H_Ledger, Tamper Detected if H_Artifact != H_Ledger }
      * This function ensures that the artifact about to be deployed matches exactly what was built.
      * @param {Context} ctx 
@@ -88,7 +89,14 @@ class BuildContract extends Contract {
 
         // Compare the current artifact's hash with the stored hash on the Blockchain
         if (build.artifactHash === currentHash) {
-            return `VERIFIED: Artifact Hash Matches for Build ${buildId}`; // OK to Deploy
+            JSON.stringify({
+                status: 'VERIFIED',
+                buildId,
+                message: 'Artifact hash matches',
+                logCid: build.logCid,
+                artifactCid: build.artifactCid,
+                timestamp: build.timestamp
+            }); // OK to Deploy
         } else {
             // Critical Security Failure: The artifact has been tampered with!
             throw new Error(`TAMPER DETECTED: Artifact Hash Mismatch! Blockchain has ${build.artifactHash}, but received ${currentHash}`);
@@ -96,7 +104,6 @@ class BuildContract extends Contract {
     }
 
     /**
-     * Get Build History. Matches requirement 2.2 in instructions.md (Auditor Access)
      * Returns the full history of modifications for a specific build record.
      * Useful for auditing who changed what and when.
      */

@@ -2,8 +2,14 @@ const fabricService = require('../services/fabricService');
 // This endpoint receives build data from Jenkins and commits it to the Blockchain.
 exports.recordBuild = async (req, res) => {
     try {
-        const { buildId, artifactHash, logIpfsHash, buildBy } = req.body;
-        await fabricService.recordBuild(buildId, artifactHash, logIpfsHash, buildBy);
+        const { buildId, artifactHash, logHash, artifactCid,logCid,buildBy } = req.body;
+
+         // Basic validation
+        if (!buildId || !artifactHash || !logHash || !artifactCid || !logCid) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        await fabricService.recordBuild(buildId, artifactHash, logHash, artifactCid,logCid,buildBy);
         res.status(200).json({ status: 'Success', message: `Build ${buildId} Recorded` });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -44,6 +50,6 @@ exports.getAllBuilds = async (req,res)=> {
         const result= await fabricService.getAllBuilds();
         res.status(200).json(result)
     } catch(error) {
-        res.statu(500).json({ error: error.message })
+        res.status(500).json({ error: error.message })
     }
 }

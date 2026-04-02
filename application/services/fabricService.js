@@ -28,10 +28,15 @@ class FabricService {
         return { contract, gateway };
     }
 
-    async recordBuild(buildId, artifactHash, logIpfsHash,buildBy) {
+    async recordBuild(buildId, artifactHash, logHash, artifactCid,logCid,buildBy) {
         const { contract, gateway } = await this.getContract();
-        await contract.submitTransaction('recordBuild', buildId, artifactHash, logIpfsHash, buildBy);
-        await gateway.disconnect();
+        try {
+            await contract.submitTransaction('recordBuild', buildId, artifactHash, logHash, artifactCid,logCid,buildBy);
+        }
+        finally {
+
+            await gateway.disconnect();
+        }
     }
 
     async verifyArtifact(buildId, currentHash) {
@@ -50,9 +55,14 @@ class FabricService {
 
     async getAllBuilds() {
         const { contract, gateway } = await this.getContract();
-        const result = await contract.evaluateTransaction('queryAllBuilds');
-        await gateway.disconnect();
-        return JSON.parse(result.toString());
+        try {
+            const result = await contract.evaluateTransaction('queryAllBuilds');
+            return JSON.parse(result.toString());
+        }
+        finally{
+            await gateway.disconnect();
+
+        }
     }
 }
 
