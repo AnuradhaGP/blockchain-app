@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
-const rateLimit = requrire('express-rate-limit');
+const rateLimit = require('express-rate-limit');
 const {verifyApiKey} = require('./middleware/auth');
 
 const fabricRoutes = require('./routes/fabricRoutes');
@@ -37,8 +37,6 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.set('socketio', io);
-app.use(bodyParser.json());
-app.use(cors());
 app.use('/api/v1/', verifyApiKey ,fabricRoutes)
 
 //Health check 
@@ -53,8 +51,9 @@ io.on('connection', (socket) => {
 
 
 const PORT = process.env.PORT;
-server.listen(PORT, async () => {
-    console.log(`BCAI blockchain server running on port :${PORT}`);
+const HOST = "0.0.0.0";
+server.listen(PORT, HOST, async () => {
+    console.log(`BCAI blockchain server running on port :${HOST}:${PORT}`);
 
    
 });

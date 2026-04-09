@@ -39,7 +39,7 @@ class BuildContract extends Contract {
      * @param {String} artifactHash - SHA-256 Hash of the artifact (Ensures Integrity)
      * @param {String} logHash - IPFS Hash (CID) of the build logs (Ensures Auditability)
      */
-    async recordBuild(ctx, buildId, artifactHash, logHash, logCid, artifactCid, buildBy) {
+    async recordBuild(ctx, buildId, artifactHash, logHash, logCid, buildBy) {
         console.info('============= START : Record Build ===========');
 
         // Check if the build ID already exists to prevent overwriting (Immutability check)
@@ -57,7 +57,6 @@ class BuildContract extends Contract {
             buildId,
             artifactHash,
             logHash,
-            artifactCid,
             logCid,
             timestamp: timestamp, // Record when it was stored
             buildBy: buildBy,
@@ -77,7 +76,7 @@ class BuildContract extends Contract {
      * @param {String} buildId - Unique ID of the build to verify
      * @param {String} currentHash - The calculated hash of the artifact currently in the deployment stage
      */
-    async verifyArtifact(ctx, buildId, currentHash) {
+    async verifyArtifact(ctx, buildId, currentArtifactHash, currentLogHash) {
         // Retrieve the original record from the ledger
         const exists = await this.buildExists(ctx, buildId);
         if (!exists) {
@@ -88,19 +87,26 @@ class BuildContract extends Contract {
         const build = JSON.parse(buildBuffer.toString());
 
         // Compare the current artifact's hash with the stored hash on the Blockchain
-        if (build.artifactHash === currentHash) {
-            JSON.stringify({
+        if (build.artifactHash !== currentArtifactHash) {
+            throw new Error(
+            `TAMPER DETECTED: Artifact hash mismatch! Expected ${build.artifactHash}, got ${currentArtifactHash}`
+            );
+           
+        }
+        if (build.logHash !== currentLogHash) {
+            throw new Error(
+            `TAMPER DETECTED: Log hash mismatch! Expected ${build.logHash}, got ${currentLogHash}`
+        );
+           
+        }
+
+         return JSON.stringify({
                 status: 'VERIFIED',
                 buildId,
-                message: 'Artifact hash matches',
+                message: 'Artifact and Log hash matches',
                 logCid: build.logCid,
-                artifactCid: build.artifactCid,
                 timestamp: build.timestamp
             }); // OK to Deploy
-        } else {
-            // Critical Security Failure: The artifact has been tampered with!
-            throw new Error(`TAMPER DETECTED: Artifact Hash Mismatch! Blockchain has ${build.artifactHash}, but received ${currentHash}`);
-        }
     }
 
     /**

@@ -28,10 +28,10 @@ class FabricService {
         return { contract, gateway };
     }
 
-    async recordBuild(buildId, artifactHash, logHash, artifactCid,logCid,buildBy) {
+    async recordBuild(buildId, artifactHash, logHash,logCid,buildBy) {
         const { contract, gateway } = await this.getContract();
         try {
-            await contract.submitTransaction('recordBuild', buildId, artifactHash, logHash, artifactCid,logCid,buildBy);
+            await contract.submitTransaction('recordBuild', buildId, artifactHash, logHash,logCid,buildBy);
         }
         finally {
 
@@ -39,18 +39,31 @@ class FabricService {
         }
     }
 
-    async verifyArtifact(buildId, currentHash) {
+    async verifyArtifact(buildId, currentArtifactHash, currentLogHash) {
         const { contract, gateway } = await this.getContract();
-        const result = await contract.evaluateTransaction('verifyArtifact', buildId, currentHash);
-        await gateway.disconnect();
-        return result.toString();
+        try{
+            const result = await contract.evaluateTransaction(
+                'verifyArtifact',
+                buildId,
+                currentArtifactHash,
+                currentLogHash
+            );
+            return result.toString();
+        }
+        finally{
+            await gateway.disconnect();
+        }
     }
 
     async getHistory(buildId) {
         const { contract, gateway } = await this.getContract();
-        const result = await contract.evaluateTransaction('getBuildHistory', buildId);
-        await gateway.disconnect();
-        return JSON.parse(result.toString());
+        try{
+            const result = await contract.evaluateTransaction('getBuildHistory', buildId);
+            return JSON.parse(result.toString());
+        }
+        finally{
+            await gateway.disconnect();
+        }
     }
 
     async getAllBuilds() {
