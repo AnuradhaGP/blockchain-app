@@ -20,7 +20,14 @@ class FabricService {
         await gateway.connect(ccp, {
             wallet,
             identity: userId,
-            discovery: { enabled: true, asLocalhost: true }// 'asLocalhost: true' is key for Docker local testing
+            discovery: { enabled: true, asLocalhost: true },// 'asLocalhost: true' is key for Docker local testing
+            eventHandlerOptions: {
+            commitTimeout : 300,
+            endorseTimeout: 300
+            },
+            'grpc-wait-for-ready-timeout': 10000,
+            'grpc.keepalive_time_ms'      : 10000,
+            'grpc.keepalive_timeout_ms'   : 5000,
         });
         // 4. Get the Channel and Contract
         const network = await gateway.getNetwork(channelName);

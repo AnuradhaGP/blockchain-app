@@ -7,7 +7,7 @@ const verifyApiKey = (req, res, next) => {
         return res.status(401).json({ error: 'API key missing' });
     }
 
-    if (apiKey !== process.env.JENKINS_API_KEY) {
+    if (apiKey !== process.env.API_KEY) {
         return res.status(403).json({ error: 'Invalid API key' });
     }
 

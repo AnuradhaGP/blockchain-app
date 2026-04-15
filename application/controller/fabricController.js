@@ -71,16 +71,33 @@ exports.getAllBuilds = async (req,res)=> {
 
 exports.uploadLog = async (req, res) => {
     try {
-        const { logContent, buildId } = req.body;
+        const buildId = req.body.buildId;
+        const logContent = req.file?.buffer?.toString('utf8');
 
         if (!logContent || !buildId) {
             return res.status(400).json({ error: 'logContent and buildId required' });
         }
 
         const { logCid, logHash } = await pinataService.uploadLog(logContent, buildId);
-
         res.status(200).json({ status: 'Success', logCid, logHash });
 
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+exports.getLog = async (req, res) => {
+    try {
+        const { cid } = req.params;
+        if (!cid) {
+            return res.status(400).json({ error: 'CID required' });
+        }
+
+        // Pinata download + decrypt
+        const decryptedBuffer = await pinataService.downloadAndDecrypt(cid);
+        const logContent = decryptedBuffer.toString('utf8');
+
+        res.status(200).json({ status: 'Success', logContent });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

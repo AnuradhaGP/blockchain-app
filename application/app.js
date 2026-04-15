@@ -5,7 +5,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
-const {verifyApiKey} = require('./middleware/auth');
+
 
 const fabricRoutes = require('./routes/fabricRoutes');
 const app = express();
@@ -17,7 +17,9 @@ require('dotenv').config();
 const io = new Server(server, {
     cors: {
 
-        origin: process.env.FRONTEND_URL || "*",
+        origin: [process.env.FRONTEND_URL ,
+            process.env.FRONTEND_IP
+        ],
         methods: ["GET", "POST"]
     }
 });
@@ -37,10 +39,10 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.set('socketio', io);
-app.use('/api/v1/', verifyApiKey ,fabricRoutes)
+app.use('/api/v1/',fabricRoutes)
 
 //Health check 
-app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/api/v1/health', (req, res) => res.json({ status: 'ok' }));
 
 io.on('connection', (socket) => {
     console.log('a user connected to dashboard');
@@ -52,6 +54,11 @@ io.on('connection', (socket) => {
 
 const PORT = process.env.PORT;
 const HOST = "0.0.0.0";
+
+server.timeout          = 120000; // 2 min
+server.keepAliveTimeout = 120000;
+server.headersTimeout   = 120000;
+
 server.listen(PORT, HOST, async () => {
     console.log(`BCAI blockchain server running on port :${HOST}:${PORT}`);
 

@@ -46,7 +46,7 @@ create channel
 Deploy the Chaincode
 
 ```
-./network.sh deployCC -ccn basic -ccp ../../sdk/chaincode -ccl javascript -c mychannel
+./network.sh deployCC -ccn basic -ccp ../../blockchain-app/chaincode -ccl javascript -c mychannel
 
 ```
 ## Step 4
