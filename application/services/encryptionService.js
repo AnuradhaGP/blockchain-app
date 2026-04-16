@@ -9,10 +9,7 @@ const TAG_LENGTH  = 16;  // 128 bits auth tag
 
 class EncryptionService {
 
-    /**
-     * Encryption - Buffer or String handles both
-     * Return: { encryptedData, iv, authTag, keyUsed } - all base64
-     */
+    //Encryption of buffer or string 
     encrypt(data) {
         //get the key fom .env
         const key = this._getKey();
@@ -40,10 +37,9 @@ class EncryptionService {
         };
     }
 
-    /**
-     * Decryption
-     * if authTag mismatch occurs automatically throw error
-     */
+  
+    // Decryption
+    //if authTag mismatch occurs automatically throw error
     decrypt(encryptedData, iv, authTag) {
         const key = this._getKey();
 
@@ -67,10 +63,8 @@ class EncryptionService {
         }
     }
 
-    /**
-     * SHA-256 hash for artifact and log verify 
-     * generate hashes to stroe blockchain
-     */
+    // SHA-256 hash for artifact and log verify 
+    //generate hashes to stroe blockchain
     hashData(data) {
         const inputBuffer = Buffer.isBuffer(data) ? data : Buffer.from(data, 'utf8');
         return crypto

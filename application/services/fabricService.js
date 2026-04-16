@@ -9,18 +9,18 @@ const walletPath = path.join(__dirname, '..', 'wallet');
 const userId = 'appUser';
 
 class FabricService {
-    // This function establishes the connection to the Fabric network Gateway
+    // establishes the connection to the Fabric network Gateway
     async getContract() {
-        // 1. Load the Connection Profile (Network Config)
+        // Load the Connection Profile (Network Config)
         const ccp = buildCCPOrg1();
-        // 2. Load the Wallet (User Identity)
+        // Load the Wallet (User Identity)
         const wallet = await buildWallet(Wallets, walletPath);
         const gateway = new Gateway();
-        // 3. Connect to the Gateway
+        //Connect to the Gateway
         await gateway.connect(ccp, {
             wallet,
             identity: userId,
-            discovery: { enabled: true, asLocalhost: true },// 'asLocalhost: true' is key for Docker local testing
+            discovery: { enabled: true, asLocalhost: true },// 'asLocalhost: true' is for Docker local testing
             eventHandlerOptions: {
             commitTimeout : 300,
             endorseTimeout: 300
@@ -29,7 +29,7 @@ class FabricService {
             'grpc.keepalive_time_ms'      : 10000,
             'grpc.keepalive_timeout_ms'   : 5000,
         });
-        // 4. Get the Channel and Contract
+        // Get the Channel and Contract
         const network = await gateway.getNetwork(channelName);
         const contract = network.getContract(chaincodeName);
         return { contract, gateway };

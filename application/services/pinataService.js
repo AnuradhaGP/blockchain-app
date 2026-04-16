@@ -8,10 +8,7 @@ const PINATA_API = 'https://api.pinata.cloud';
 
 class PinataService {
 
-    /**
-     * encrypt Build log then upload to Pinata
-     * Return: { logCid, logHash }
-     */
+    //encrypt Build log then upload to Pinata
     async uploadLog(logContent, buildId) {
         const logBuffer = Buffer.from(logContent, 'utf8');
 
@@ -114,10 +111,7 @@ class PinataService {
         return response.data.IpfsHash;
     }
 
-    /**
-     * fetch Pinata metadata from CID
-     * fetch iv and authTag
-     */
+   // fetch Pinata metadata from CID 
     async _getMetadata(cid) {
         const jwt = this._getJwt();
 
@@ -134,9 +128,8 @@ class PinataService {
         return rows[0].metadata;
     }
 
-    /** 
-    * get pinata JWT from .env
-    */
+  
+    // get pinata JWT from .env
     _getJwt() {
         const jwt = process.env.PINATA_JWT;
         if (!jwt) throw new Error('PINATA_JWT not set in .env');

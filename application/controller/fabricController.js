@@ -50,15 +50,7 @@ exports.verifyArtifact = async (req, res) => {
         res.status(400).json({ status: 'Failed', error: error.message });
     }
 };
-//Get History (For Auditor)
-exports.getBuildHistory = async (req, res) => {
-    try {
-        const history = await fabricService.getHistory(req.params.buildId);
-        res.status(200).json(history);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-};
+
 //  Get All Builds (For Dashboard)
 exports.getAllBuilds = async (req,res)=> {
     try{

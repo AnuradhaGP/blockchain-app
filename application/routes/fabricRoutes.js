@@ -7,7 +7,6 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 router.post('/record',verifyApiKey, fabricController.recordBuild);
 router.post('/verify', fabricController.verifyArtifact);
-router.get('/history/:buildId', fabricController.getBuildHistory);
 router.get('/all', fabricController.getAllBuilds);
 router.post('/log/upload', verifyApiKey, upload.single('logFile'), fabricController.uploadLog);
 router.get('/log/:cid', fabricController.getLog);

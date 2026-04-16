@@ -32,12 +32,8 @@ class BuildContract extends Contract {
     }
 
     /**
-     * Record a new build.
-     * This function stores the immutable proof of a CI/CD build.
-     * @param {Context} ctx 
-     * @param {String} buildId - Unique ID of the build (e.g. Jenkins Build #)
-     * @param {String} artifactHash - SHA-256 Hash of the artifact (Ensures Integrity)
-     * @param {String} logHash - IPFS Hash (CID) of the build logs (Ensures Auditability)
+      *Record a new build.
+      *This function stores the immutable proof of a CI/CD build.
      */
     async recordBuild(ctx, buildId, artifactHash, logHash, logCid, buildBy) {
         console.info('============= START : Record Build ===========');
@@ -70,11 +66,7 @@ class BuildContract extends Contract {
 
     /**
      * Verify Artifact Integrity
-     * Logic: Status = { Deploy Proceed if H_Artifact == H_Ledger, Tamper Detected if H_Artifact != H_Ledger }
-     * This function ensures that the artifact about to be deployed matches exactly what was built.
-     * @param {Context} ctx 
-     * @param {String} buildId - Unique ID of the build to verify
-     * @param {String} currentHash - The calculated hash of the artifact currently in the deployment stage
+     * This function ensures that the artifact hashes and log hashes matches with the hashes stored in the blockchain.
      */
     async verifyArtifact(ctx, buildId, currentArtifactHash, currentLogHash) {
         // Retrieve the original record from the ledger
@@ -93,6 +85,7 @@ class BuildContract extends Contract {
             );
            
         }
+        // Compare the current log hash with the stored hash on the Blockchain
         if (build.logHash !== currentLogHash) {
             throw new Error(
             `TAMPER DETECTED: Log hash mismatch! Expected ${build.logHash}, got ${currentLogHash}`
@@ -107,37 +100,6 @@ class BuildContract extends Contract {
                 logCid: build.logCid,
                 timestamp: build.timestamp
             }); // OK to Deploy
-    }
-
-    /**
-     * Returns the full history of modifications for a specific build record.
-     * Useful for auditing who changed what and when.
-     */
-    async getBuildHistory(ctx, buildId) {
-        const historyIterator = await ctx.stub.getHistoryForKey(buildId);
-        const allHistory = [];
-
-        let result = await historyIterator.next();
-        while (!result.done) {
-            const strValue = Buffer.from(result.value.value.toString()).toString('utf8');
-            let record;
-            try {
-                record = JSON.parse(strValue);
-            } catch (err) {
-                console.log(err);
-                record = strValue;
-            }
-            // Create a history record with transaction ID and timestamp
-            allHistory.push({
-                TxId: result.value.tx_id, // The specific transaction ID that made the modification
-                Timestamp: result.value.timestamp, // When it happened
-                IsDelete: result.value.is_delete, // Was it a delete operation?
-                Record: record // The state of the asset after the transaction
-            });
-            result = await historyIterator.next();
-        }
-        await historyIterator.close();
-        return JSON.stringify(allHistory);
     }
 
     /**

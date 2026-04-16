@@ -62,4 +62,3 @@ run the app.js to start the server.
 ```
 node app.js
 ```
-P.S make sure to change channelName to the channel name using

@@ -18,7 +18,7 @@ const io = new Server(server, {
     cors: {
 
         origin: [process.env.FRONTEND_URL ,
-            process.env.FRONTEND_IP
+            process.env.FRONTEND_IP, '*'
         ],
         methods: ["GET", "POST"]
     }
@@ -61,6 +61,4 @@ server.headersTimeout   = 120000;
 
 server.listen(PORT, HOST, async () => {
     console.log(`BCAI blockchain server running on port :${HOST}:${PORT}`);
-
-   
 });
