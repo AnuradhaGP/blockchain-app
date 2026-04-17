@@ -3,11 +3,11 @@ const pinataService    = require('../services/pinataService');
 // This endpoint receives build data from Jenkins and commits it to the Blockchain.
 exports.recordBuild = async (req, res) => {
     try {
-        const { buildId, artifactHash, logHash,logCid,buildBy } = req.body;
-      
+        const { buildId, artifactHash, logHash = "",logCid,buildBy } = req.body;
 
          // Basic validation
-        if (!buildId || !artifactHash || !logHash) {
+         
+        if (!buildId || !artifactHash) {
             return res.status(400).json({ error: 'Missing required fields' });
         }
 

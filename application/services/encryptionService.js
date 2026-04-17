@@ -37,7 +37,6 @@ class EncryptionService {
         };
     }
 
-  
     // Decryption
     //if authTag mismatch occurs automatically throw error
     decrypt(encryptedData, iv, authTag) {

@@ -62,16 +62,6 @@ class FabricService {
         }
     }
 
-    async getHistory(buildId) {
-        const { contract, gateway } = await this.getContract();
-        try{
-            const result = await contract.evaluateTransaction('getBuildHistory', buildId);
-            return JSON.parse(result.toString());
-        }
-        finally{
-            await gateway.disconnect();
-        }
-    }
 
     async getAllBuilds() {
         const { contract, gateway } = await this.getContract();
